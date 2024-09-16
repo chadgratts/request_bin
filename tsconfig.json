@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",                          // Target ECMAScript version (adjust if needed)
+    "module": "ESNext",                        // Module system (CommonJS for Node.js)
+    "outDir": "./dist",                           // Output directory for compiled JavaScript files
+    "rootDir": "./src",                           // Root directory for your TypeScript source code
+    "strict": true,                               // Enable strict type checking (recommended)
+    "moduleResolution": "Bundler",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "allowArbitraryExtensions": true,
+    "customConditions": ["module"],                              
+    "esModuleInterop": true,                      // Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'.
+    "skipLibCheck": true,                        // Skip type checking of declaration files (improves build times)
+    "forceConsistentCasingInFileNames": true      // Enforce consistent casing in file names (helps avoid issues on case-sensitive file systems)
+  },
+  "include": [                                   // Include all TypeScript files in your source directory
+    "./src/**/*.ts"
+  ],
+  "exclude": [                                   // Exclude common directories like node_modules
+    "node_modules"
+  ]
+}

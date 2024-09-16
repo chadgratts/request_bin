@@ -1,7 +1,6 @@
 CREATE TABLE bin (
   id serial PRIMARY KEY,
   endpoint char(12) UNIQUE NOT NULL,
-  -- created_at timestamp with time DEFAULT CURRENT_TIMESTAMP,
   updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP
 );
 

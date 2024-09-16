@@ -16,27 +16,31 @@ const handleRequest = async (req) => {
         '\r\n\r\n' +
         rawBody;
 
-      console.log(rawBody);
-      console.log(fullRawRequest);
+      // console.log(rawBody);
+      // console.log(fullRawRequest);
       
-      const mongoRequestId = await storeRawRequest(fullRawRequest);
-      const mongoBodyId = await storeRequestBody(rawBody);
+      // Save raw request and body to Mongo
+      const mongoRequestId = (await storeRawRequest(fullRawRequest)).toString();
+      const mongoBodyId = (await storeRequestBody(rawBody)).toString();
 
-      console.log(mongoRequestId);
-      console.log(mongoBodyId);
+      // console.log(mongoRequestId);
+      // console.log(mongoBodyId);
 
       const method = req.method;
       const path = req.path;
-      const headers = req.headers;
+      const headers = Object.entries(req.headers)
+                        .map(([key, value]) => `${key}: ${value}`)
+                        .join('\r\n') +
+                        '\r\n\r\n'
       const receivedAt = new Date().toISOString();
 
-      console.log(method);
-      console.log(path);
-      console.log(headers);
-      console.log(receivedAt);
+      // console.log(method);
+      // console.log(path);
+      // console.log(headers);
+      // console.log(receivedAt);
 
-      // needs updating
-      // await storeRequestDetails(3, method, path, headers, receivedAt, mongoRequestId, mongoBodyId)
+      // Save request details to PostgreSQL bin
+      await storeRequestDetails(3, method, path, headers, receivedAt, mongoRequestId, mongoBodyId);
     });
   } catch (error) {
     console.error('Error handling request:', error);

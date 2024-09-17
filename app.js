@@ -11,23 +11,32 @@ const generateUniqueEndpoint = async () => {
   return nanoid();
 }
 
-// tzf9n4rhgkgl
 const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 
 // Connect to MongoDB and PostgreSQL
-mongoose.connect('mongodb://localhost:27017/requestbin', { useNewUrlParser: true, useUnifiedTopology: true }); // may not need
-const sequelize = new Sequelize('postgres://chadgratts:password@localhost:5432/requestbin');
+mongoose.connect('mongodb://requestbin:PGWun5fc9Wi2JJA82EUD5gWa@localhost:27017/requestbin');
+console.log('Connected to MongoDB');
+const sequelize = new Sequelize('postgresql://postgres:bO5{Ug!E*B3Pe;K8m:uSsMmO@localhost:5432/requestbin');
+console.log('Connected to PostgreSQL');
 
+
+// MongoDB models (extract this stuff later)
+const rawRequestSchema = new mongoose.Schema({
+  request_raw: { type: String },
+}, { versionKey: false });
+const RawRequest = mongoose.model('RawRequest', rawRequestSchema, 'mongo_requests');
+
+const requestBodySchema = new mongoose.Schema({
+  request_body: { type: String }
+}, { versionKey: false });
+const RequestBody = mongoose.model('RequestBody', requestBodySchema, 'mongo_bodies');
 
 // Sync PostgreSQL models
 // sequelize.sync();
 
 // Create a new bin (POST request)
-app.post('/createbin', async (req, res) => { // POST https://ourdomain.com/createbin
-  // endpoint char(12) UNIQUE NOT NULL,
-  // updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP
-
+app.post('/createbin', async (req, res) => {
   try {
     const generatedEndpoint = await generateUniqueEndpoint();
     const currentTime = new Date().toISOString();
@@ -46,31 +55,46 @@ app.post('/createbin', async (req, res) => { // POST https://ourdomain.com/creat
   };
 });
 
-
-
 // User is navigating to a bin URL (i.e. if they remember their url)
-app.get('/bin/:binId/', async (req, res) => { // GET https://ourdomain.com/bin/tzf9n4rhgkgl 
-  // logic to get the endpoint aka tzf9n4rhgkgl
-  // query bin table to see if tzf9n4rhgkgl exists, save the PK ID to variable if so
-
-  // no: respond 404
-
-  // yes: query request table and get any requests that match the bin ID
-    // search request table for PK bin ID === FK bin_id, if none: return no requests
-      // take the first record and get its mongo_request_id
-        // search mongo (mongo_requests) for any documents that have mongo_request_id, if none: return no requests
+app.get('/bin/:endpoint/', async (req, res) => {
   try {
-    const { binId } = req.params;
-
-    const bin = await sequelize.query(`SELECT * FROM bin WHERE endpoint = '${binId}'`, {
+    // Find the bin in pg
+    const { endpoint } = req.params;
+    const bin = await sequelize.query(`SELECT * FROM bin WHERE endpoint = '${endpoint}'`, {
       type: QueryTypes.SELECT
     });
-  
+    // Bin doesn't exist
     if (bin.length === 0) {
       res.status(404).json({ error: 'bin not found' });
+      return;
     };
 
-    res.status(200).send('hi');
+    // Find the request details in pg for any request(s) in the above bin
+    const binId = bin[0].id;
+    const pgBinRequests = await sequelize.query(`SELECT * FROM request WHERE bin_id = '${binId}'`, {
+      type: QueryTypes.SELECT
+    });
+    // Bin has no requests in it
+    if (pgBinRequests.length === 0) {
+      res.status(200).json({ info: 'no requests in bin' });
+      return;
+    }
+
+    // Find the request bodies in mongo from any details found above
+    const mongoBodyIds = pgBinRequests.map(request => request.mongo_body_id);
+    const documents = await RequestBody.find({
+      _id: { $in: mongoBodyIds } // Filter by mongo_body_ids
+    });
+    const mongoBinBodies = documents.map(doc => doc.request_body);
+
+    // Add request bodies to details and strip unwanted details
+    const reconstructedRequests = pgBinRequests.map((requestDetails, idx) => {
+      const { id, bin_id, mongo_request_id, mongo_body_id, ...reconstructedRequest } = requestDetails;
+      reconstructedRequest.body = mongoBinBodies[idx];
+      return reconstructedRequest;
+    });
+
+    res.status(200).json(reconstructedRequests);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -78,30 +102,20 @@ app.get('/bin/:binId/', async (req, res) => { // GET https://ourdomain.com/bin/t
 
 
 // Fetch requests for a bin (GET request to /bin/:binId/requests)
-app.get('/bin/:binId/requests', async (req, res) => {
-  const { binId } = req.params;
-  try {
-    const requests = await Request.find({ binId });
-    // request something from postgres here too?
-    res.status(200).json({ requests });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+// app.get('/bin/:binId/requests', async (req, res) => {
+//   const { binId } = req.params;
+//   try {
+//     const requests = await Request.find({ binId });
+//     // request something from postgres here too?
+//     res.status(200).json({ requests });
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// });
 
-app.listen(3000, () => {
-  console.log('Server is running on port 3000');
-});
-
-// SELECT * FROM bin;
-
-// DROP TABLE bin;
-
-// id |   endpoint   |         updated_at         
-// ----+--------------+----------------------------
-//   1 | 468sv9n8otnl | 2024-09-16 18:17:25.662-04
-
-// localhost:3000/bin/468sv9n8otnl
+// app.listen(3000, () => {
+//   console.log('Server is running on port 3000');
+// });
 
 // Handle incoming requests to endpoint (POST/GET to /bin/:binId)
 app.all('/bin/:binId', async (req, res) => {

@@ -16,7 +16,7 @@ async function seedMongoDB() {
 
     const rawRequestOne = `GET/  HTTP/1.1\r\nHost: jwm187dsq8xt.domain.com\r\nUser-Agent: PostmanRuntime/7.41.0\r\n\Accept: */*\r\n\r\n`;
     const rawRequestTwo = `POST /sample/post/request HTTP/1.1\r\nHost: belaphqgy9xm.domain.com\r\nContent-Type: application/json\r\nContent-Length: 35\r\nUser-Agent: PostmanRuntime/7.32.3\r\nAccept: */*\r\nCache-Control: no-cache\r\nPostman-Token: iuhgs9824h5u20fhe\r\n\r\n{\r\n"name": "Alice",\r\n"email": "alice@example.com"\r\n}`;
-    const rawRequestThree = `GET /sample/get/request?id=ddc5f0ed-60ff-4435-abc5-590fafe4a771&timestamp=1544827965&event=delivered HTTP/1.1\r\nHost: w8wt4asl1cu8.domain.com\r\naccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7\r\naccept-language: en-US,en;q=0.9\r\ncache-control: no-cache\r\npragma: no-cache\r\npriority: u=0, i\r\nsec-ch-ua: "Chromium";v="128", "Not;A=Brand";v="24", "Google Chrome";v="128"\r\nsec-ch-ua-mobile: ?0\r\nsec-ch-ua-platform: "macOS"\r\nsec-fetch-dest: document\r\nsec-fetch-mode: navigate\r\nsec-fetch-site: none\r\nsec-fetch-user: ?1\r\nupgrade-insecure-requests: 1\r\nuser-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36\r\nAccept-Encoding: gzip, deflate, br\r\n\r\n`;
+    const rawRequestThree = `GET /sample/get/request?id=ddc5f0ed-60ff-4435-abc5-590fafe4a771&timestamp=1544827965&event=delivered HTTP/1.1\r\nHost: w8wt4asl1cu8.domain.com\r\naccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7\r\naccept-language: en-US,en;q=0.9\r\ncache-control: no-cache\r\npragma: no-cache\r\npriority: u=0, i\r\nsec-ch-ua-mobile: ?0\r\nsec-fetch-dest: document\r\nsec-fetch-mode: navigate\r\nsec-fetch-site: none\r\nsec-fetch-user: ?1\r\nupgrade-insecure-requests: 1\r\nuser-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36\r\nAccept-Encoding: gzip, deflate, br\r\n\r\n`;
 
     const resultOne = await collection.insertOne({ request_raw: rawRequestOne });
     const resultTwo = await collection.insertOne({ request_raw: rawRequestTwo });
@@ -98,9 +98,7 @@ seedMongoDB();
 // cache-control: no-cache
 // pragma: no-cache
 // priority: u=0, i
-// sec-ch-ua: "Chromium";v="128", "Not;A=Brand";v="24", "Google Chrome";v="128"
 // sec-ch-ua-mobile: ?0
-// sec-ch-ua-platform: "macOS"
 // sec-fetch-dest: document
 // sec-fetch-mode: navigate
 // sec-fetch-site: none

@@ -9,7 +9,9 @@ CREATE TABLE request (
   bin_id int NOT NULL REFERENCES bin(id) ON DELETE CASCADE,
   method varchar(10) NOT NULL,
   path varchar(255),
-  headers text,
+  original_url TEXT,
+  query_parameters jsonb,
+  headers jsonb,
   received_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
   mongo_request_id varchar(255),
   mongo_body_id varchar(255)

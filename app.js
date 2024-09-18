@@ -2,15 +2,8 @@ const express = require('express');
 const domainRouter = require('./controllers/domain');
 const subdomainRouter = require('./controllers/subdomain');
 // const bodyParser = require('body-parser');
-const mongoose = require('./config/mongoose-config');
 const morgan = require('morgan');
 const logger = require('./utils/logger');
-
-const generateUniqueEndpoint = async () => {
-  const { customAlphabet } = await import('nanoid');
-  const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyz', 12);
-  return nanoid();
-}
 
 // Sync PostgreSQL models
 // sequelize.sync();

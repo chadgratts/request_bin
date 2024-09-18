@@ -2,6 +2,7 @@ const RequestBody = require('../models/requestBody');
 const { sequelize, QueryTypes } = require('../config/sequelize-config');
 const bcrypt = require('bcrypt');
 const domainRouter = require('express').Router();
+const generateUniqueEndpoint = require('../utils/endpointGenerator');
 
 // (FE) Create a bin
 domainRouter.post('/createbin', async (req, res) => {

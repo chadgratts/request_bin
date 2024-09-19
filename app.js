@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const domainRouter = require('./controllers/domain');
 const subdomainRouter = require('./controllers/subdomain');
 // const bodyParser = require('body-parser');

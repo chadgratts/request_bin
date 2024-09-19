@@ -1,8 +1,8 @@
 const RawRequest = require('../models/rawRequest');
 const RequestBody = require('../models/requestBody');
 const { sequelize, QueryTypes } = require('../config/sequelize-config');
-const bcrypt = require('bcrypt');
 const subdomainRouter = require('express').Router();
+const logger = require('../utils/logger');
 
 // (Endpoint) Send a request to an endpoint
 subdomainRouter.all('*', async (req, res) => {

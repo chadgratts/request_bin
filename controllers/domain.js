@@ -5,7 +5,7 @@ const domainRouter = require('express').Router();
 const generateUniqueEndpoint = require('../utils/endpointGenerator');
 
 // (FE) Create a bin
-domainRouter.post('/createbin', async (req, res) => {
+domainRouter.post('api/createbin', async (req, res) => {
   try {
     const generatedEndpoint = await generateUniqueEndpoint();
     const currentTime = new Date().toISOString();
@@ -22,7 +22,7 @@ domainRouter.post('/createbin', async (req, res) => {
 });
 
 // (FE) Navigate to a bin
-domainRouter.get('/bin/:endpoint', async (req, res) => {
+domainRouter.get('api/bin/:endpoint', async (req, res) => {
   try {
     // Find the bin in pg
     const { endpoint } = req.params;

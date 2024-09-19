@@ -11,6 +11,7 @@ const logger = require('./utils/logger');
 const app = express();
 
 // app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cors());
 app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) }}));
 
 // Domain / Subdomain traffic router middleware

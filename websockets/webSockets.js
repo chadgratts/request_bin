@@ -1,4 +1,5 @@
-const logger = require('./utils/logger');
+const logger = require('../utils/logger');
+const WebSocket = require('ws');
 const binClients = {};
 
 const addClient = (binEndpoint, client) => {
@@ -24,7 +25,6 @@ const handleIncomingEndpointRequest = (binEndpoint, request) => {
   if (binClients[binEndpoint]) {
     binClients[binEndpoint].forEach(client => {
       if (client.readyState === WebSocket.OPEN) {
-        // Ensure the request is converted to a JSON string
         try {
           const message = JSON.stringify(request);
           client.send(message);
@@ -44,7 +44,6 @@ const initWebSocketForBin = (wss) => {
     const binEndpoint = splitPath[splitPath.length - 1];
 
     // Validation
-    
 
     addClient(binEndpoint, ws);
 

@@ -3,8 +3,10 @@ const RequestBody = require('../models/requestBody');
 const { sequelize, QueryTypes } = require('../config/sequelize-config');
 const subdomainRouter = require('express').Router();
 const logger = require('../utils/logger');
+const bcrypt = require('bcrypt');
+const { handleIncomingEndpointRequest } = require('../websockets/webSockets');
 
-// (Endpoint) Send a request to an endpoint
+// (Endpoint) Receive a request sent to an endpoint
 subdomainRouter.all('*', async (req, res) => {
   try {
     const subdomain = req.headers.host.split('.')[0];
@@ -71,15 +73,35 @@ subdomainRouter.all('*', async (req, res) => {
       const headers = req.headers;
       const currentTime = new Date().toISOString();
 
+      // (for the WebSocket notification below)
+      let newPgRequestId;
+
       try {
-        await sequelize.query('INSERT INTO request (bin_id, method, path, original_url, query_parameters, headers, received_at, mongo_request_id, mongo_body_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)', {
+        const result = await sequelize.query('INSERT INTO request (bin_id, method, path, original_url, query_parameters, headers, received_at, mongo_request_id, mongo_body_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id', {
           bind: [binId, method, path, originalUrl, queryParams, headers, currentTime, mongoRequestId, mongoBodyId],
           type: QueryTypes.INSERT
         });
         logger.info('Saved request details to PostgrSQL.');
+
+        newPgRequestId = result[0][0].id;
       } catch (err) {
         logger.error('Failed to save request details to PostgreSQL:', err);
       }
+
+      // (WebSocket) Send the rebuilt request to the connected clients
+      const saltRounds = 10;
+      const hashedId = bcrypt.hashSync(newPgRequestId.toString(), saltRounds);
+      const rebuiltRequest = {
+        id: hashedId,
+        method,
+        original_url: originalUrl,
+        query_parameters: queryParams,
+        headers,
+        received_at: currentTime,
+        body: rawBody
+      };
+
+      handleIncomingEndpointRequest(subdomain, rebuiltRequest);
     });
 
     res.status(200).json({ success: true });
